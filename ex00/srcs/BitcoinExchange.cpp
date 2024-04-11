@@ -6,7 +6,7 @@
 /*   By: bfaure <bfaure@student.42lyon.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/09 13:17:49 by bfaure            #+#    #+#             */
-/*   Updated: 2024/04/10 17:40:03 by bfaure           ###   ########lyon.fr   */
+/*   Updated: 2024/04/11 14:21:46 by bfaure           ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,12 +59,52 @@ void BitcoinExchange::fillMap()
 		std::cout << "Cannot open the file" << std::endl;
 }
 
-bool isValidDate(std::string line)
+void BitcoinExchange::initCalendar()
 {
-	
+	_calendar[1] = 31;
+	_calendar[2] = 28;
+	_calendar[3] = 31;
+	_calendar[4] = 30;
+	_calendar[5] = 31;
+	_calendar[6] = 30;
+	_calendar[7] = 31;
+	_calendar[8] = 31;
+	_calendar[9] = 30;
+	_calendar[10] = 31;
+	_calendar[11] = 30;
+	_calendar[12] = 31;
+
 }
 
-bool isDate(std::string line)
+bool BitcoinExchange::isValidDate(std::string *line, int n)
+{
+	switch (n)
+	{
+	case 0:
+		// std::cout << atoi(line[n].c_str()) << std::endl;
+		if (atoi(line[n].c_str()) < 2009 || atoi(line[n].c_str()) > 2024)
+			return (false);
+		break;
+	case 1:
+		// std::cout << atoi(line[n].c_str()) << std::endl;
+		if (atoi(line[n].c_str()) <= 0 || atoi(line[n].c_str()) > 12)
+			return (false);
+		break;
+	case 2:
+		// std::cout << "atoi(line[n].c_str()) = " << atoi(line[n].c_str()) << std::endl;
+		// std::cout << "atoi(line[n - 1].c_str()) = " << atoi(line[n - 1].c_str()) << std::endl;
+		// std::cout << "_calendar[atoi(line[n - 1].c_str())] = " << _calendar[atoi(line[n - 1].c_str())] << std::endl;
+		if (atoi(line[n].c_str()) > _calendar[atoi(line[n - 1].c_str())])
+			return (false);
+		// std::cout << "PASS" <<std::endl;
+		break;
+	default:
+		break;
+	}
+	return (true);
+}
+
+bool BitcoinExchange::isDate(std::string line)
 {
 	std::cout << "line = |" << line << "|" << std::endl;
 	int j = 0;
@@ -77,19 +117,34 @@ bool isDate(std::string line)
 	if (j != 2)
 		return (false);
 	std::istringstream sline(line);
-	std::string s;
+	std::string s[3];
 	for (j = 0; j <= 2; j++)
 	{
-		std::getline(sline, s, '-');
-		if (j == 0)
+		std::getline(sline, s[j], '-');
+		// std::cout << "s[" << j << "] = " << s[j] << std::endl;
+		switch (j)
 		{
-			if (s.length() != 4)
+		case 0:
+			if (s[j].length() != 4)
 				return (false);
-		}
-		else if ((j == 1 || j == 2))
-		{
-			if (s.length() != 2)
+			if (!isValidDate(s, 0))
 				return (false);
+			break;
+		case 1:
+			if (s[j].length() != 2)
+				return (false);
+			if (!isValidDate(s, 1))
+				return (false);
+			break;
+		case 2:
+			if (s[j].length() != 2)
+				return (false);
+			if (!isValidDate(s, 2))
+				return (false);
+			break;
+		
+		default:
+			break;
 		}
 	}
 	return (true);
