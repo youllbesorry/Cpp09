@@ -6,7 +6,7 @@
 /*   By: bfaure <bfaure@student.42lyon.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/09 13:17:49 by bfaure            #+#    #+#             */
-/*   Updated: 2024/04/11 14:21:46 by bfaure           ###   ########lyon.fr   */
+/*   Updated: 2024/04/23 16:37:48 by bfaure           ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,27 +76,33 @@ void BitcoinExchange::initCalendar()
 
 }
 
+bool BitcoinExchange::isValidValue(std::string line)
+{
+	if (atoi(line.c_str()) < 0)
+		return (false);
+	return (true);
+}
+
 bool BitcoinExchange::isValidDate(std::string *line, int n)
 {
 	switch (n)
 	{
 	case 0:
-		// std::cout << atoi(line[n].c_str()) << std::endl;
 		if (atoi(line[n].c_str()) < 2009 || atoi(line[n].c_str()) > 2024)
 			return (false);
 		break;
 	case 1:
-		// std::cout << atoi(line[n].c_str()) << std::endl;
 		if (atoi(line[n].c_str()) <= 0 || atoi(line[n].c_str()) > 12)
 			return (false);
 		break;
 	case 2:
-		// std::cout << "atoi(line[n].c_str()) = " << atoi(line[n].c_str()) << std::endl;
-		// std::cout << "atoi(line[n - 1].c_str()) = " << atoi(line[n - 1].c_str()) << std::endl;
-		// std::cout << "_calendar[atoi(line[n - 1].c_str())] = " << _calendar[atoi(line[n - 1].c_str())] << std::endl;
-		if (atoi(line[n].c_str()) > _calendar[atoi(line[n - 1].c_str())])
+		if (atoi(line[1].c_str()) == 2 && ((atoi(line[0].c_str()) % 4 == 0 && atoi(line[0].c_str()) % 100 != 0) || (atoi(line[0].c_str()) % 400 == 0 && atoi(line[0].c_str()) % 100 != 0)))
+		{
+			if (atoi(line[n].c_str()) <= 0 || atoi(line[n].c_str()) > 29)
+				return (false);
+		}
+		else if (atoi(line[n].c_str()) <= 0 || atoi(line[n].c_str()) > _calendar[atoi(line[1].c_str())])
 			return (false);
-		// std::cout << "PASS" <<std::endl;
 		break;
 	default:
 		break;
@@ -106,7 +112,7 @@ bool BitcoinExchange::isValidDate(std::string *line, int n)
 
 bool BitcoinExchange::isDate(std::string line)
 {
-	std::cout << "line = |" << line << "|" << std::endl;
+	// std::cout << "line = |" << line << "|" << std::endl;
 	int j = 0;
 	int i = 0;
 	for (i = 0; line[i]; i++)
@@ -121,7 +127,6 @@ bool BitcoinExchange::isDate(std::string line)
 	for (j = 0; j <= 2; j++)
 	{
 		std::getline(sline, s[j], '-');
-		// std::cout << "s[" << j << "] = " << s[j] << std::endl;
 		switch (j)
 		{
 		case 0:
@@ -150,15 +155,27 @@ bool BitcoinExchange::isDate(std::string line)
 	return (true);
 }
 
-void BitcoinExchange::calculate(std::string infile)
+void BitcoinExchange::calculate(std::string date, std::string value)
+{
+	// (void) value;
+	std::map<std::string, double>::iterator it = _coin.lower_bound(date);
+	if (it == _coin.end())
+		it--;
+	std::cout << "it->second == " << it->second << std::endl;
+	std::cout << date << " => " << value << " = " << it->second * atof(value.c_str()) << std::endl;
+}
+
+void BitcoinExchange::parsing(std::string infile)
 {
 	std::cout << "infile = " << infile << std::endl;
-	std::ifstream file(infile.c_str());
-	std::string line;
+	std::ifstream 	file(infile.c_str());
+	std::string 	line;
+	int 			notPass = 0;
 	if (file.is_open())
 	{
 		while (std::getline(file, line))
 		{
+			std::cout << "line = <|" << line << "|>" << std::endl;
 			std::istringstream sline(line);
 			std::string part1;
 			std::string part2;
@@ -166,11 +183,23 @@ void BitcoinExchange::calculate(std::string infile)
 			std::getline(sline, part2, '|');
 			part1.erase(std::remove_if(part1.begin(), part1.end(), ::isspace), part1.end());
 		    part2.erase(std::remove_if(part2.begin(), part2.end(), ::isspace), part2.end());
+			notPass = 0;
 			if (!isDate(part1))
 			{
 				std::cout << "Error" << std::endl;
-				// return ;
+				notPass++;
+				continue ;
 			}
+			if (!isValidValue(part2))
+			{
+				std::cout << "Wrong value" << std::endl;
+				notPass++;
+			}
+			if (notPass == 0)
+			{
+				calculate(part1, part2);
+			}
+			
 		}
 	}
 	else
