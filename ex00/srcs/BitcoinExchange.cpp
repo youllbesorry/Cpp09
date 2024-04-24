@@ -6,7 +6,7 @@
 /*   By: bfaure <bfaure@student.42lyon.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/09 13:17:49 by bfaure            #+#    #+#             */
-/*   Updated: 2024/04/23 16:37:48 by bfaure           ###   ########lyon.fr   */
+/*   Updated: 2024/04/24 13:59:52 by bfaure           ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,10 +49,6 @@ void BitcoinExchange::fillMap()
 			std::getline(sline, part2, ',');
 			_coin[part1] = strtod(part2.c_str(), NULL);
 		}
-		// for (std::map<std::string, double>::iterator it = _coin.begin(); it != _coin.end(); ++it)
-		// {
-       	// 	std::cout << it->first << " " << std::fixed << std::setprecision(2) << it->second << std::endl;
-		// }
 		data.close();
 	}
 	else
@@ -112,7 +108,6 @@ bool BitcoinExchange::isValidDate(std::string *line, int n)
 
 bool BitcoinExchange::isDate(std::string line)
 {
-	// std::cout << "line = |" << line << "|" << std::endl;
 	int j = 0;
 	int i = 0;
 	for (i = 0; line[i]; i++)
@@ -157,11 +152,11 @@ bool BitcoinExchange::isDate(std::string line)
 
 void BitcoinExchange::calculate(std::string date, std::string value)
 {
-	// (void) value;
-	std::map<std::string, double>::iterator it = _coin.lower_bound(date);
+	std::map<std::string, double>::iterator it = _coin.upper_bound(date);
 	if (it == _coin.end())
 		it--;
-	std::cout << "it->second == " << it->second << std::endl;
+	if (_coin.upper_bound(date) != _coin.find(date))
+		it--;
 	std::cout << date << " => " << value << " = " << it->second * atof(value.c_str()) << std::endl;
 }
 
@@ -175,7 +170,6 @@ void BitcoinExchange::parsing(std::string infile)
 	{
 		while (std::getline(file, line))
 		{
-			std::cout << "line = <|" << line << "|>" << std::endl;
 			std::istringstream sline(line);
 			std::string part1;
 			std::string part2;
