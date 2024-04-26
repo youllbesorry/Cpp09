@@ -6,87 +6,79 @@
 /*   By: bfaure <bfaure@student.42lyon.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/24 13:26:39 by bfaure            #+#    #+#             */
-/*   Updated: 2024/04/24 17:27:15 by bfaure           ###   ########lyon.fr   */
+/*   Updated: 2024/04/26 15:39:03 by bfaure           ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RPN.hpp"
+#include <cstdlib>
 
-RPN::RPN() {}
-
-RPN::~RPN() {}
-
-RPN::RPN(const RPN &ref)
+void RPN(std::string line)
 {
-	*this = ref;
-}
-
-RPN &RPN::operator=(const RPN &rhs)
-{
-	if (this != &rhs)
-		*this = rhs;
-	return (*this);
-}
-
-void RPN::afficherOperateurs() {
-    std::stack<char> tempStack; // Créer un stack temporaire pour inverser l'ordre
-    // Transférer les éléments dans tempStack pour les inverser
-    while (!_operator.empty()) {
-        tempStack.push(_operator.top());
-        _operator.pop();
-    }
-    // Afficher les éléments dans l'ordre original
-    while (!tempStack.empty()) {
-        std::cout << tempStack.top() << ' ';
-        _operator.push(tempStack.top()); // Remettre les éléments dans _operator
-        tempStack.pop();
-    }
-    std::cout << std::endl;
-}
-
-void RPN::afficherValue() {
-    std::stack<char> tempStack; // Créer un stack temporaire pour inverser l'ordre
-    // Transférer les éléments dans tempStack pour les inverser
-    while (!_value.empty()) {
-        tempStack.push(_value.top());
-        _value.pop();
-    }
-    // Afficher les éléments dans l'ordre original
-    while (!tempStack.empty()) {
-        std::cout << tempStack.top() << ' ';
-        _value.push(tempStack.top()); // Remettre les éléments dans _operator
-        tempStack.pop();
-    }
-    std::cout << std::endl;
-}
-
-void RPN::parsing(std::string line)
-{
-	std::string strOperator = "+-/*";
-	for (unsigned long i = 0; i != line.length(); i++)
+	std::stack<int> stack;
+	size_t			start = 0;
+	size_t			end = 0;
+	int				nb = 0;
+	
+	parsing(line);
+	while (line.length() != 0)
 	{
-		if (line[i] != ' ' && strOperator.find(line[i]) != std::string::npos)
+		start = line.find_first_not_of(" ");
+		end = line.find(" ", start);
+		if (isdigit(line[start]))
 		{
-			std::cout << "operator line[" << i << "] = |" << line[i] << "|" << std::endl;
-			_operator.push(line[i]);
+			for (size_t i = start; i < end; i++)
+			{
+				if (!isdigit(line[i]))
+					throw (std::runtime_error("Somethings goes wrong with your input..."));
+			}
+			nb = atoi(line.substr(start, end).c_str());
+			if (nb < 0 || nb > 9)
+				throw (std::runtime_error("Somethings goes wrong with your input..."));
+			stack.push(nb);
 		}
-		else if (line[i] != ' ')
-		{
-			std::cout << "value line[" << i << "] = |" << line[i] << "|" << std::endl;
-			_value.push(line[i]);
-		}
+		else if ((line[start] == '+' || line[start] == '-' || line[start] == '/' || line[start] == '*'))
+			stack.push(calculate(line[start], stack));
+		line.erase(0, end);
 	}
-	afficherOperateurs();
-	afficherValue();
-	if ((_value.size() / 2) != _operator.size())
-	{
-		std::cout << "Wrong number of operator" << std::endl;
-		return ;
-	}
+	// if (stack.size() > 1)
+	// 	throw (std::runtime_error("Somethings goes wrong with your input... 2"));
+	std::cout << "Result = " << stack.top() << std::endl;
 	return ;
 }
 
-void RPN::calculate()
+void parsing(std::string line)
 {
-	
+	if (line.find_first_not_of("1234567890+-/* ") != std::string::npos
+	|| line.find_first_not_of("1234567890 ") == std::string::npos
+	|| line.find_first_not_of("+-/* ") == std::string::npos
+	|| line.empty())
+		throw (std::runtime_error("Somethings goes wrong with your input..."));
+}
+
+int calculate(char _operator, std::stack<int> stack)
+{
+	if (stack.size() < 2)
+		throw (std::runtime_error("Somethings goes wrong with your input... 1"));
+	int second = stack.top();
+	stack.pop();
+	int first = stack.top();
+	stack.pop();
+	std::cout << "first = " << first << std::endl;
+	std::cout << "_operator = " << _operator <<std::endl;
+	std::cout << "second = " << second << std::endl;
+	switch (_operator)
+	{
+	case '+':
+		return (first + second);
+	case '-':
+		return (first - second);
+	case '/':
+		return (first / second);
+	case '*':
+		return (first * second);
+	default:
+		break;
+	}
+	return (0);
 }
