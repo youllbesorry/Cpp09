@@ -19,13 +19,13 @@ bool is_valid_input(std::string str, std::vector<int> &vec, std::deque<int> &deq
     {
         if (!isdigit(str[i]))
         {
-            std::cout << "Error" << std::endl << "You must use only positive numbers" << std::endl;
+            std::cout << "Error" << std::endl << "You must use only positive integer" << std::endl;
             return (false);
         }
         num = atoi(str.c_str());
         if (num < 0)
         {
-            std::cout << "Error" << std::endl << "You must use only positive numbers" << std::endl;
+            std::cout << "Error" << std::endl << "You must use only positive integer" << std::endl;
             return (false);
         }
     }
@@ -46,19 +46,5 @@ void print_deque(std::deque<int> &deq)
     for (size_t i = 0; i < deq.size(); i++)
         std::cout << deq[i] << " ";
     std::cout << std::endl;
-}
-
-std::vector<int> generateJacobsthal(int n)
-{
-    std::vector<int> jacobsthal(n + 1);
-    if (n >= 0)
-        jacobsthal[0] = 0;
-    if (n >= 1)
-        jacobsthal[1] = 1;
-    for (int i = 2; i <= n; ++i)
-    {
-        jacobsthal[i] = jacobsthal[i-1] + 2 * jacobsthal[i-2];
-    }
-    return (jacobsthal);
 }
 
