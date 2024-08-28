@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: bfaure <bfaure@student.42lyon.fr>          +#+  +:+       +#+         #
+#    By: bfaure <bfaure@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/24 13:25:59 by bfaure            #+#    #+#              #
-#    Updated: 2024/04/29 14:32:16 by bfaure           ###   ########lyon.fr    #
+#    Updated: 2024/08/28 18:01:10 by bfaure           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ CC = c++ -std=c++98
 
 DEPS_FLAGS = -MMD -MP
 
-CFLAGS = ${DEPS_FLAGS} -Wall -Wextra -Werror -g3 -fsanitize=address
+CFLAGS = ${DEPS_FLAGS} -Wall -Wextra -Werror -g3
 
 ############## SOURCES ##############
 
