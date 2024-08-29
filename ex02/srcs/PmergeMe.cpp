@@ -15,8 +15,18 @@
 bool is_valid_input(std::string str, std::vector<int> &vec, std::deque<int> &deq)
 {
     int num = 0;
+    if (str[0] == '\0')
+    {
+        std::cout << "Error" << std::endl << "You must use only positive integer" << std::endl;
+        return (false);
+    }
     for (size_t i = 0; i < str.length(); i++)
     {
+        if (str[i] == '\0')
+        {
+            std::cout << "Error" << std::endl << "You must use only positive integer" << std::endl;
+            return (false);
+        }
         if (!isdigit(str[i]))
         {
             std::cout << "Error" << std::endl << "You must use only positive integer" << std::endl;

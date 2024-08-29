@@ -81,11 +81,17 @@ bool BitcoinExchange::isValidValue(std::string line)
 
 bool BitcoinExchange::isValidDate(std::string *line, int n)
 {
+	// n = 0 => year
+	// n = 1 => month
+	// n = 2 => day
 	switch (n)
 	{
 	case 0:
-		if (atoi(line[n].c_str()) < 2009 || atoi(line[n].c_str()) > 2024)
+		if (atoi(line[n].c_str()) < 2009 || atoi(line[1].c_str()) < 1 || atoi(line[2].c_str()) < 3)
+		{
+			std::cout << "The bitcoit wasn't even created at this time you bum bitch" << std::endl;
 			return (false);
+		}
 		break;
 	case 1:
 		if (atoi(line[n].c_str()) <= 0 || atoi(line[n].c_str()) > 12)
@@ -122,29 +128,16 @@ bool BitcoinExchange::isDate(std::string line)
 	for (j = 0; j <= 2; j++)
 	{
 		std::getline(sline, s[j], '-');
-		switch (j)
+		if (j == 2)
 		{
-		case 0:
-			if (s[j].length() != 4)
+			if (s[0].length() != 4 || s[1].length() != 2 || s[2].length() != 2)
 				return (false);
 			if (!isValidDate(s, 0))
 				return (false);
-			break;
-		case 1:
-			if (s[j].length() != 2)
-				return (false);
 			if (!isValidDate(s, 1))
-				return (false);
-			break;
-		case 2:
-			if (s[j].length() != 2)
 				return (false);
 			if (!isValidDate(s, 2))
 				return (false);
-			break;
-		
-		default:
-			break;
 		}
 	}
 	return (true);
@@ -162,7 +155,6 @@ void BitcoinExchange::calculate(std::string date, std::string value)
 
 void BitcoinExchange::parsing(std::string infile)
 {
-	std::cout << "infile = " << infile << std::endl;
 	std::ifstream 	file(infile.c_str());
 	std::string 	line;
 	int 			notPass = 0;
@@ -170,6 +162,23 @@ void BitcoinExchange::parsing(std::string infile)
 	{
 		while (std::getline(file, line))
 		{
+			if (line.empty())
+				continue ;
+			if (line.find("|") == std::string::npos)
+			{
+				std::cout << "Error: bad input, no pipe => " << line << std::endl;
+				continue ;
+			}
+			else if (!(isdigit(line[line.find("|") - 2])) || !(isdigit(line[line.find("|") + 2])))
+			{
+				std::cout << "Error: bad input, no value before or after pipe => " << line << std::endl;
+				continue ;
+			}
+			else if (!(isspace(line[line.find("|") - 1])) || !(isspace(line[line.find("|") + 1])))
+			{
+				std::cout << "Error: bad input, no space before or after pipe => " << line << std::endl;
+				continue ;
+			}
 			std::istringstream sline(line);
 			std::string part1;
 			std::string part2;
@@ -180,7 +189,7 @@ void BitcoinExchange::parsing(std::string infile)
 			notPass = 0;
 			if (!isDate(part1))
 			{
-				std::cout << "Error" << std::endl;
+				std::cout << "Error: bad date => " << part1 << std::endl;
 				notPass++;
 				continue ;
 			}
