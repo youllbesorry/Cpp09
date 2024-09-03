@@ -17,7 +17,7 @@ std::deque<int> deq;
 
 int main(int argc, char **argv)
 {
-	if (argc < 2)
+	if (argc < 2 || argv[1][0] == '\0')
 	{
         std::cout << "Error" << std::endl << "You must use this program as follow : ./PmergeMe <sequence>" << std::endl;
         return (1);
